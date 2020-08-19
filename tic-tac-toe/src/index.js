@@ -17,6 +17,7 @@ class Board extends React.Component {
   renderSquare(i) {
     return (
       <Square 
+        key={i}
         value={this.props.squares[i]}
         onClick={() => this.props.onClick(i)} 
       />
@@ -24,24 +25,16 @@ class Board extends React.Component {
   }
 
   render() {
+    let squares = [];
+    for (let i = 0; i < 3; i++) {
+      let row = [];
+      for (let j = 0; j < 3; j++) {
+        row.push(this.renderSquare(i * 3 + j));
+      }
+      squares.push(<div key={i} className="board-row">{row}</div>);
+    }
     return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
+      <div>{squares}</div>
     );
   }
 }
@@ -53,6 +46,7 @@ class Game extends React.Component {
       history: [{
         squares: Array(9).fill(null),
       }],
+      isAscending: true,
       stepNumber: 0,
       xIsNext: true,
     };
@@ -83,12 +77,18 @@ class Game extends React.Component {
     })
   }
 
+  reverseSortOrder() {
+    this.setState({
+      isAscending: !this.state.isAscending,
+    })
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = caluculateWinner(current.squares);
 
-    const moves = history.map((step, move) => {
+    let moves = history.map((step, move) => {
       const moveCol = (step.moveSquare % 3) + 1; 
       const moveRow = Math.floor(step.moveSquare / 3) + 1;
       const desc = move ?
@@ -105,6 +105,9 @@ class Game extends React.Component {
         </li>
       );
     });
+    if (!this.state.isAscending) {
+      moves.reverse()
+    }
 
     let status;
     if (winner) {
@@ -122,6 +125,12 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <div>Move Sort Order: <span style={{fontWeight: 'bold'}}>{this.state.isAscending ? 'Descending' : 'Ascending'}</span></div>          
+          Press to Sort in <button 
+            onClick={() => this.reverseSortOrder()}
+          >
+            {this.state.isAscending ? 'Ascending' : 'Descending'}
+          </button> Order
           <ol>{moves}</ol>
         </div>
       </div>
