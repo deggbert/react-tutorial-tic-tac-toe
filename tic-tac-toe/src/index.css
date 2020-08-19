@@ -49,7 +49,6 @@ ol, ul {
   margin-left: 20px;
 }
 
-
 .bold {
   font-weight: bold;
 }
@@ -64,6 +63,11 @@ ol, ul {
 
 .winnerText {
   color: forestgreen;
+  font-weight: bold;
+}
+
+.drawText {
+  color: red;
   font-weight: bold;
 }
 

@@ -52,6 +52,7 @@ class Game extends React.Component {
       isAscending: true,
       stepNumber: 0,
       xIsNext: true,
+      isDraw: false,
     };
   }
 
@@ -59,7 +60,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (caluculateWinner(squares).winner || squares[i]) {
+    if (caluculateWinner(squares, this.state.stepNumber).winner || squares[i]) {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -89,8 +90,9 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winnerInfo = caluculateWinner(current.squares);
+    const winnerInfo = caluculateWinner(current.squares, this.state.stepNumber);
     const winner = winnerInfo.winner;
+    const isDraw = winnerInfo.isDraw;
 
     let moves = history.map((step, move) => {
       const moveCol = (step.moveSquare % 3) + 1; 
@@ -113,12 +115,18 @@ class Game extends React.Component {
       moves.reverse()
     }
 
-    let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
+    let status1, status2;
+    if (isDraw) {
+      status1 = 'Draw: ';
+      status2 = winner;
+    } else if (winner) {
+      status1 = 'Winner: '
+      status2 = winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      status1 = 'Next player: ';
+      status2 = <span className='bold'>{this.state.xIsNext ? 'X' : 'O'}</span>
     }
+
     return (
       <div className="game">
         <div className="game-board">
@@ -131,12 +139,14 @@ class Game extends React.Component {
         <div className="game-info">
           <div
             className={
-              winner
+              isDraw
+                ? 'drawText'
+              : winner
                 ? 'winnerText'
               : ''
             }
           >
-            {status}
+            {status1}{status2}
           </div>
           <div>Move Sort Order: <span className='bold'>{this.state.isAscending ? 'Ascending' : 'Descending'}</span></div>          
           Press to Sort in <button 
@@ -151,7 +161,7 @@ class Game extends React.Component {
   }
 }
 
-function caluculateWinner(squares) {
+function caluculateWinner(squares, stepNumber) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -168,13 +178,23 @@ function caluculateWinner(squares) {
       return {
         winner: squares[a],
         line: lines[i],
+        isDraw: false,
       } 
+    }
+  }
+
+  if (stepNumber === 9) {
+    return {
+      winner: 'No Winner',
+      line: null,
+      isDraw: true,
     }
   }
 
   return {
     winner: null,
     line: null,
+    isDraw: false,
   }
 }
 
