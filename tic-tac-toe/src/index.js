@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 function Square(props) {
+  const className = 'square' + (props.winnerSquare ? ' winner' : '');
   return (
     <button 
-      className="square"
+      className={className}
       onClick={props.onClick}
     >
       {props.value}
@@ -15,11 +16,13 @@ function Square(props) {
 
 class Board extends React.Component {
   renderSquare(i) {
+    const winnerLine = this.props.winnerLine;
     return (
       <Square 
         key={i}
         value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)} 
+        onClick={() => this.props.onClick(i)}
+        winnerSquare={winnerLine?.includes(i)} 
       />
     );
   }
@@ -56,7 +59,7 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (caluculateWinner(squares) || squares[i]) {
+    if (calculateWinner(squares).winner || squares[i]) {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -86,8 +89,11 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = caluculateWinner(current.squares);
-
+    const winnerInfo = calculateWinner(current.squares, this.state.stepNumber);
+    const winner = winnerInfo.winner;
+    const winnerLine = winnerInfo.line;
+    const isDraw = winnerInfo.isDraw;
+    
     let moves = history.map((step, move) => {
       const moveCol = (step.moveSquare % 3) + 1; 
       const moveRow = Math.floor(step.moveSquare / 3) + 1;
@@ -109,27 +115,44 @@ class Game extends React.Component {
       moves.reverse()
     }
 
-    let status;
-    if (winner) {
-      status = 'Winner: ' + winner;
+    let status1, status2;
+    if (isDraw) {
+      status1 = 'DRAW: ';
+      status2 = winner;
+    } else if (winner) {
+      status1 = 'Winner: '; 
+      status2 = winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      status1 = 'Next Player: ';
+      status2 = <span className='bold'>{this.state.xIsNext ? 'X' : 'O'}</span>;
     }
+
     return (
       <div className="game">
         <div className="game-board">
           <Board 
             squares={current.squares}
+            winnerLine={winnerLine}
             onClick={(i) => this.handleClick(i)}
           />
         </div>
         <div className="game-info">
-          <div>{status}</div>
-          <div>Move Sort Order: <span style={{fontWeight: 'bold'}}>{this.state.isAscending ? 'Descending' : 'Ascending'}</span></div>          
+          <div
+            className={
+              isDraw 
+                ? 'drawText' 
+              : winner 
+                ? 'winnerText' 
+              : ''
+            }
+          >
+            {status1}{status2}
+          </div>
+          <div>Move Sort Order: <span className='bold'>{this.state.isAscending ? 'Ascending' : 'Descending'}</span></div>          
           Press to Sort in <button 
             onClick={() => this.reverseSortOrder()}
           >
-            {this.state.isAscending ? 'Ascending' : 'Descending'}
+            {this.state.isAscending ? 'Descending' : 'Ascending'}
           </button> Order
           <ol>{moves}</ol>
         </div>
@@ -138,7 +161,7 @@ class Game extends React.Component {
   }
 }
 
-function caluculateWinner(squares) {
+function calculateWinner(squares, stepNumber) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -152,10 +175,27 @@ function caluculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a]
+      return {
+        winner: squares[a], 
+        line: lines[i],
+        isDraw: false,
+      };
     }
   }
-  return null;
+
+  if (stepNumber === 9) {
+    return {
+      winner: 'No Winner',
+      line: null,
+      isDraw: true,
+    }
+  } else {
+    return {
+      winner: null,
+      line: null,
+      isDraw: false,
+    };
+  }
 }
 
 // ========================================
