@@ -49,6 +49,21 @@ ol, ul {
   margin-left: 20px;
 }
 
+
+.bold {
+  font-weight: bold;
+}
+
 .selected {
   font-weight: bold;
 }
+
+.winnerSquare {
+  background-color: forestgreen;
+}
+
+.winnerText {
+  color: forestgreen;
+  font-weight: bold;
+}
+
