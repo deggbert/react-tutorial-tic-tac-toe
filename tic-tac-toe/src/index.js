@@ -48,11 +48,13 @@ class Game extends React.Component {
     this.state = {
       history: [{
         squares: Array(9).fill(null),
+        moveSquare: null,
       }],
       isAscending: true,
       stepNumber: 0,
       xIsNext: true,
-      isDraw: false,
+      isTimerOn: false,
+      startTime: null, 
     };
   }
 
@@ -60,10 +62,27 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
-    if (caluculateWinner(squares, this.state.stepNumber).winner || squares[i]) {
+    const currentWinnerInfo = caluculateWinner(squares, this.state.stepNumber);
+    let winner = currentWinnerInfo.winner;
+    
+    if (winner || squares[i]) {
       return;
     }
+
+    if (this.state.stepNumber === 0) {
+      this.setState({
+        startTime: Date.now(),
+        isTimerOn: true,
+      });
+    } else if ((this.state.stepNumber + 1) !== this.state.history.length) {
+      this.setState({
+        startTime: Date.now(),
+        isTimerOn: true,
+      });
+    }
+    
     squares[i] = this.state.xIsNext ? 'X' : 'O';
+    
     this.setState({
       history: history.concat([{
         squares: squares,
@@ -72,12 +91,23 @@ class Game extends React.Component {
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
     });
+    
+    const newWinInfo = caluculateWinner(squares, this.state.stepNumber + 1);
+    winner = newWinInfo.winner;
+    let isDraw = newWinInfo.isDraw;
+
+    if (winner || isDraw) {
+      this.setState({
+        isTimerOn: false,
+      });
+    }
   }
 
   jumpTo(step) {
     this.setState({
       stepNumber: step,
-      xIsNext: (step % 2) === 0
+      xIsNext: (step % 2) === 0,
+      isTimerOn: false,
     })
   }
 
@@ -90,9 +120,9 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winnerInfo = caluculateWinner(current.squares, this.state.stepNumber);
-    const winner = winnerInfo.winner;
-    const isDraw = winnerInfo.isDraw;
+    const winInfo = caluculateWinner(current.squares, this.state.stepNumber);
+    const winner = winInfo.winner;
+    const isDraw = winInfo.isDraw;
 
     let moves = history.map((step, move) => {
       const moveCol = (step.moveSquare % 3) + 1; 
@@ -117,10 +147,10 @@ class Game extends React.Component {
 
     let status1, status2;
     if (isDraw) {
-      status1 = 'Draw: ';
+      status1 = 'DRAW: ';
       status2 = winner;
     } else if (winner) {
-      status1 = 'Winner: '
+      status1 = 'WINNER: '
       status2 = winner;
     } else {
       status1 = 'Next player: ';
@@ -133,7 +163,7 @@ class Game extends React.Component {
           <Board 
             squares={current.squares}
             onClick={(i) => this.handleClick(i)}
-            winnerLine={winnerInfo.line}
+            winnerLine={winInfo.line}
           />
         </div>
         <div className="game-info">
@@ -155,6 +185,16 @@ class Game extends React.Component {
             {this.state.isAscending ? 'Descending' : 'Ascending'}
           </button> Order
           <ol>{moves}</ol>
+        </div>
+        <div className='timer'>
+          <Timer
+            isTimerOn={this.state.isTimerOn}
+            startTime={this.state.startTime}
+            history={this.state.history}
+            stepNumber={this.state.stepNumber}
+            winner={winner}
+            isDraw={isDraw}
+          />
         </div>
       </div>
     );
@@ -195,6 +235,83 @@ function caluculateWinner(squares, stepNumber) {
     winner: null,
     line: null,
     isDraw: false,
+  }
+}
+
+// Added Functionality
+
+class Timer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      gameLength: null,
+      lastMove: 0,
+      timeAddedFromReverts: 0,
+    }
+  }
+  
+  componentDidUpdate(prevProps) { 
+    if (this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
+      this.startTimer();
+    } else if (!this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
+      this.stopTimer();
+    }
+  }
+  
+
+  startTimer() {
+    this.calcGameLength();
+    this.intervalId = setInterval(
+      () => this.tick(), 
+      1000
+    )
+  }
+  
+  tick() {
+    this.calcGameLength();
+  }
+
+  stopTimer() {
+    clearInterval(this.intervalId);
+  }
+
+  calcGameLength() {
+    const startTime = this.props.startTime;
+    const currentTime = Date.now();
+    let gameLength;
+    if (this.props.stepNumber < this.state.lastMove) {
+      gameLength = this.state.gameLength + Math.round((currentTime - startTime) / 1000);
+      this.setState({
+        gameLength: gameLength,
+        lastMove: this.props.stepNumber,
+        timeAddedFromReverts: this.state.gameLength,
+      });
+    } else {
+      gameLength = Math.round((currentTime - startTime) / 1000) + this.state.timeAddedFromReverts;
+      this.setState({
+        gameLength: gameLength,
+        lastMove: this.props.stepNumber,
+      });
+    }
+  }
+
+  render() {
+    const gameLength = this.state.gameLength;
+
+    return (
+      <>
+        <div className='bold'>Game Timer:</div>
+        <div>
+          { 
+            gameLength === null
+              ? 'Game has not yet started. Click a square to begin.'
+            :this.props.winner || this.props.isDraw
+              ? `This game took ${gameLength} seconds.`
+            : `This game has been running for ${gameLength} seconds.`
+          }
+        </div>
+      </>
+    )
   }
 }
 

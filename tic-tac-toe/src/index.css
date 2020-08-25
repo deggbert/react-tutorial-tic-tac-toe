@@ -71,3 +71,8 @@ ol, ul {
   font-weight: bold;
 }
 
+/* Added Functionality */
+.timer {
+  margin-left: 20px;
+}
+
