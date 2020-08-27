@@ -1,6 +1,24 @@
-import React from 'react';
+import React, {Suspense} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+// import Clock from './clock'
+
+// const Clock = React.lazy(() => import('./clock'));
+
+// const Clock = React.lazy(() => {
+//   return new Promise(resolve => {
+//     setTimeout(() => resolve(import('./clock')), 3000);
+//   });
+// });
+
+const Clock = React.lazy(() => {
+  return Promise.all([
+    import('./clock'),
+    // Set artificial load delay to test suspense
+    new Promise(resolve => setTimeout(resolve, 3000)) 
+  ])
+  .then(([moduleExports]) => moduleExports);
+});
 
 function Square(props) {
   const className = 'square' + (props.winnerSquare ? ' winnerSquare' : '');
@@ -195,6 +213,11 @@ class Game extends React.Component {
             winner={winner}
             isDraw={isDraw}
           />
+        </div>
+        <div className='clock'>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Clock />
+          </Suspense>
         </div>
       </div>
     );
