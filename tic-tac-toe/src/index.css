@@ -76,6 +76,8 @@ ol, ul {
   margin-left: 20px;
 }
 
-.clock {
+.clocks {
   margin-left: 20px;
+  background-color: lightblue;
+  padding: 5px;
 }

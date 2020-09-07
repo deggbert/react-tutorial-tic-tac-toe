@@ -1,24 +1,18 @@
 import React, {Suspense} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import Clock from './clock'
-
-// const Clock = React.lazy(() => import('./clock'));
-
-// const Clock = React.lazy(() => {
-//   return new Promise(resolve => {
-//     setTimeout(() => resolve(import('./clock')), 3000);
-//   });
-// });
+import TestErrorBoundary from './TestErrorBoundary';
 
 const Clock = React.lazy(() => {
   return Promise.all([
-    import('./clock'),
+    import('./Clock'),
     // Set artificial load delay to test suspense
     new Promise(resolve => setTimeout(resolve, 3000)) 
   ])
   .then(([moduleExports]) => moduleExports);
 });
+
+const BuggyClock = React.lazy(() => import('./BuggyClock'));
 
 function Square(props) {
   const className = 'square' + (props.winnerSquare ? ' winnerSquare' : '');
@@ -214,10 +208,22 @@ class Game extends React.Component {
             isDraw={isDraw}
           />
         </div>
-        <div className='clock'>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Clock />
-          </Suspense>
+        <div className='clocks'>
+          <h1>Clocks</h1>
+          <hr />
+          <h2>Suspense Clock</h2>
+          <TestErrorBoundary>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Clock />
+            </Suspense>
+          </TestErrorBoundary> 
+          <hr />
+          <h2>Error Boundary Clock</h2>
+          <TestErrorBoundary>  
+            <Suspense fallback={<div>Loading...</div>}>
+              <BuggyClock />
+            </Suspense>
+          </TestErrorBoundary>
         </div>
       </div>
     );

@@ -8,11 +8,12 @@ function FormattedDate(props) {
   )
 }
 
-class Clock extends React.Component {
+class BuggyClock extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      date: new Date()
+      date: new Date(),
+      counter: 0,
     };
   }
 
@@ -28,19 +29,23 @@ class Clock extends React.Component {
   }
 
   tick() {
-    this.setState({
+    this.setState(({counter}) => ({
       date: new Date(),
-    });
+      counter: counter + 1,
+    }));
   }
 
   render() {
+    if (this.state.counter === 7) {
+      throw new Error('Buggy Clock Broke!');
+    }
+
     return (
-      <>
-        <FormattedDate
-          date={this.state.date} />
-      </>
+      <FormattedDate
+        date={this.state.date} 
+      />
     );
   }
 }
 
-export default Clock;
+export default BuggyClock;
