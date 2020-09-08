@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import memoizeOne from 'memoize-one';
+
 import './index.css';
 import {ThemeContext, themes} from './theme-context';
 
@@ -49,10 +51,8 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      themeData: { // Don't like the nested state -- should find a workaround but I don't want to pass all of state down to children (or is that ok?)
-        theme: themes.light,
-        toggleFn: this.toggleTheme,
-      },
+      theme: themes.light,
+      toggleTheme: this.toggleTheme,
       history: [{
         squares: Array(9).fill(null),
         moveSquare: null,
@@ -65,15 +65,14 @@ class Game extends React.Component {
     };
   }
 
+  memoizeThemeProviderData = memoizeOne((theme, toggleTheme) => ({theme: theme, toggleTheme: toggleTheme}));
+
   toggleTheme = () => {
     this.setState(state => ({
-      themeData: {
-        theme: 
-          state.themeData.theme === themes.dark
-            ? themes.light
-          :themes.dark,
-        toggleFn: this.toggleTheme,
-      }
+      theme: 
+        state.theme === themes.dark
+          ? themes.light
+        :themes.dark,
     }));
   }
 
@@ -137,6 +136,10 @@ class Game extends React.Component {
   }
 
   render() {
+    console.log('Game Rendered'); //TODO: REMOVE
+    
+    const themeProviderData = this.memoizeThemeProviderData(this.state.theme, this.state.toggleTheme);
+
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winInfo = caluculateWinner(current.squares, this.state.stepNumber);
@@ -215,7 +218,7 @@ class Game extends React.Component {
             isDraw={isDraw}
           />
         </div>
-        <ThemeContext.Provider value={this.state.themeData}>
+        <ThemeContext.Provider value={themeProviderData}>
           <ClockPanel />
         </ThemeContext.Provider>
       </div>
@@ -273,6 +276,8 @@ class Timer extends React.Component {
   }
   
   componentDidUpdate(prevProps) { 
+    console.log('Timer - ComponentDidUpdate'); //TODO: REMOVE
+
     if (this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
       this.startTimer();
     } else if (!this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
@@ -318,6 +323,7 @@ class Timer extends React.Component {
   }
 
   render() {
+    console.log('Timer Rendered'); //TODO: REMOVE
     const gameLength = this.state.gameLength;
 
     return (

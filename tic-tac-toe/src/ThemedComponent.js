@@ -5,6 +5,8 @@ class ThemedComponent extends React.Component {
   static contextType = ThemeContext;
 
   render() {
+    console.log('ThemedComponent Rendered'); //TODO: REMOVE
+
     let props = this.props;
     let theme = this.context.theme;
     return  (

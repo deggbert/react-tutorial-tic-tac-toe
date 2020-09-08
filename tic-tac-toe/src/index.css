@@ -47,6 +47,7 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+  width: 275px;
 }
 
 .bold {
@@ -74,6 +75,7 @@ ol, ul {
 /* Added Functionality */
 .timer {
   margin-left: 20px;
+  width: 175px;
 }
 
 .clocks {
