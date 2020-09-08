@@ -34,13 +34,7 @@ class Clock extends React.Component {
   }
 
   render() {
-    return (
-      <>
-        <FormattedDate
-          date={this.state.date} />
-      </>
-    );
+    return <FormattedDate date={this.state.date} />;
   }
 }
-
 export default Clock;

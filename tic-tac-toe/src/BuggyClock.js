@@ -40,12 +40,7 @@ class BuggyClock extends React.Component {
       throw new Error('Buggy Clock Broke!');
     }
 
-    return (
-      <FormattedDate
-        date={this.state.date} 
-      />
-    );
+    return <FormattedDate date={this.state.date} />;
   }
 }
-
 export default BuggyClock;

@@ -1,18 +1,9 @@
-import React, {Suspense} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import TestErrorBoundary from './TestErrorBoundary';
+import {ThemeContext, themes} from './theme-context';
 
-const Clock = React.lazy(() => {
-  return Promise.all([
-    import('./Clock'),
-    // Set artificial load delay to test suspense
-    new Promise(resolve => setTimeout(resolve, 3000)) 
-  ])
-  .then(([moduleExports]) => moduleExports);
-});
-
-const BuggyClock = React.lazy(() => import('./BuggyClock'));
+import ClockPanel from './ClockPanel';
 
 function Square(props) {
   const className = 'square' + (props.winnerSquare ? ' winnerSquare' : '');
@@ -58,6 +49,10 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      themeData: { // Don't like the nested state -- should find a workaround but I don't want to pass all of state down to children (or is that ok?)
+        theme: themes.light,
+        toggleFn: this.toggleTheme,
+      },
       history: [{
         squares: Array(9).fill(null),
         moveSquare: null,
@@ -68,6 +63,18 @@ class Game extends React.Component {
       isTimerOn: false,
       startTime: null, 
     };
+  }
+
+  toggleTheme = () => {
+    this.setState(state => ({
+      themeData: {
+        theme: 
+          state.themeData.theme === themes.dark
+            ? themes.light
+          :themes.dark,
+        toggleFn: this.toggleTheme,
+      }
+    }));
   }
 
   handleClick(i) {
@@ -208,23 +215,9 @@ class Game extends React.Component {
             isDraw={isDraw}
           />
         </div>
-        <div className='clocks'>
-          <h1>Clocks</h1>
-          <hr />
-          <h2>Suspense Clock</h2>
-          <TestErrorBoundary>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Clock />
-            </Suspense>
-          </TestErrorBoundary> 
-          <hr />
-          <h2>Error Boundary Clock</h2>
-          <TestErrorBoundary>  
-            <Suspense fallback={<div>Loading...</div>}>
-              <BuggyClock />
-            </Suspense>
-          </TestErrorBoundary>
-        </div>
+        <ThemeContext.Provider value={this.state.themeData}>
+          <ClockPanel />
+        </ThemeContext.Provider>
       </div>
     );
   }
