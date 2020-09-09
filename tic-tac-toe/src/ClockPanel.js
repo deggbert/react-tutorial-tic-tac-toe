@@ -11,10 +11,9 @@ const Clock = React.lazy(() => {
   ])
   .then(([moduleExports]) => moduleExports);
 });
-
 const BuggyClock = React.lazy(() => import('./BuggyClock'));
 
-const ClockPanel = React.memo(function ClockPanel() {
+const ClockPanel = React.memo(function() {
   console.log('ClockPanel Rendered');
 
   return (
@@ -42,5 +41,4 @@ const ClockPanel = React.memo(function ClockPanel() {
     </div>
   );
 });
-
 export default ClockPanel;

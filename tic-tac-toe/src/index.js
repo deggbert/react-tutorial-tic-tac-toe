@@ -5,47 +5,10 @@ import memoizeOne from 'memoize-one';
 import './index.css';
 import {ThemeContext, themes} from './theme-context';
 
+import Board from './Board';
+import Timer from './Timer';
 import ClockPanel from './ClockPanel';
 
-function Square(props) {
-  const className = 'square' + (props.winnerSquare ? ' winnerSquare' : '');
-  return (
-    <button 
-      className={className}
-      onClick={props.onClick}
-    >
-      {props.value}
-    </button>
-  )
-}
-
-class Board extends React.Component {
-  renderSquare(i) {
-    const winnerLine = this.props.winnerLine;
-    return (
-      <Square 
-        key={i}
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)} 
-        winnerSquare={winnerLine?.includes(i)}
-      />
-    );
-  }
-
-  render() {
-    let squares = [];
-    for (let i = 0; i < 3; i++) {
-      let row = [];
-      for (let j = 0; j < 3; j++) {
-        row.push(this.renderSquare(i * 3 + j));
-      }
-      squares.push(<div key={i} className="board-row">{row}</div>);
-    }
-    return (
-      <div>{squares}</div>
-    );
-  }
-}
 
 class Game extends React.Component {
   constructor(props) {
@@ -265,83 +228,7 @@ function caluculateWinner(squares, stepNumber) {
 
 // Added Functionality
 
-class Timer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      gameLength: null,
-      lastMove: 0,
-      timeAddedFromReverts: 0,
-    }
-  }
-  
-  componentDidUpdate(prevProps) { 
-    console.log('Timer - ComponentDidUpdate'); //TODO: REMOVE
 
-    if (this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
-      this.startTimer();
-    } else if (!this.props.isTimerOn && this.props.isTimerOn !== prevProps.isTimerOn) {
-      this.stopTimer();
-    }
-  }
-  
-
-  startTimer() {
-    this.calcGameLength();
-    this.intervalId = setInterval(
-      () => this.tick(), 
-      1000
-    )
-  }
-  
-  tick() {
-    this.calcGameLength();
-  }
-
-  stopTimer() {
-    clearInterval(this.intervalId);
-  }
-
-  calcGameLength() {
-    const startTime = this.props.startTime;
-    const currentTime = Date.now();
-    let gameLength;
-    if (this.props.stepNumber < this.state.lastMove) {
-      gameLength = this.state.gameLength + Math.round((currentTime - startTime) / 1000);
-      this.setState({
-        gameLength: gameLength,
-        lastMove: this.props.stepNumber,
-        timeAddedFromReverts: this.state.gameLength,
-      });
-    } else {
-      gameLength = Math.round((currentTime - startTime) / 1000) + this.state.timeAddedFromReverts;
-      this.setState({
-        gameLength: gameLength,
-        lastMove: this.props.stepNumber,
-      });
-    }
-  }
-
-  render() {
-    console.log('Timer Rendered'); //TODO: REMOVE
-    const gameLength = this.state.gameLength;
-
-    return (
-      <>
-        <div className='bold'>Game Timer:</div>
-        <div>
-          { 
-            gameLength === null
-              ? 'Game has not yet started. Click a square to begin.'
-            :this.props.winner || this.props.isDraw
-              ? `This game took ${gameLength} seconds.`
-            : `This game has been running for ${gameLength} seconds.`
-          }
-        </div>
-      </>
-    )
-  }
-}
 
 // ========================================
 
