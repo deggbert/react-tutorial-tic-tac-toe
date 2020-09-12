@@ -8,6 +8,7 @@ import {ThemeContext, themes} from './theme-context';
 import Board from './Board';
 import Timer from './Timer';
 import ClockPanel from './ClockPanel';
+import MouseTracker from './MouseTracker';
 
 
 class Game extends React.Component {
@@ -184,6 +185,7 @@ class Game extends React.Component {
         <ThemeContext.Provider value={themeProviderData}>
           <ClockPanel />
         </ThemeContext.Provider>
+        <MouseTracker />
       </div>
     );
   }

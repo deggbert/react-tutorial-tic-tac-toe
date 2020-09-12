@@ -2,7 +2,7 @@ import React from 'react';
 import { ThemeContext, themes } from './theme-context';
 
 function ThemeTogglerButton() {
-  console.log('ThemeTogglerButton Rendered');
+  console.log('ThemeTogglerButton Rendered'); //TODO: Remove
   // **ALTERNATE METHOD**
   // const { theme, toggleTheme } = React.useContext(ThemeContext);
 

@@ -80,6 +80,25 @@ ol, ul {
 
 .clocks {
   margin-left: 20px;
+  width: 350px;
   background-color: lightblue;
   padding: 5px;
+}
+
+.ball {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+}
+.ballContainer {
+  position: absolute;
+  border: 1px solid black;
+  height: 200px;
+  width: 200px;
+}
+.mouseTracker {
+  margin-left: 20px;
+  width: 202px;
+  padding: 5px;
+  background-color: lightcoral;
 }
