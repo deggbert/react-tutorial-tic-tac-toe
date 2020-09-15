@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 
 function Ball(props) {
-  debugger;
   const ball = useRef(null);
   const parentRef = props.parentRef.current;
   const mousePosition = props.mousePosition;
@@ -38,8 +37,6 @@ class MousePosition extends React.Component {
   }
 
   handleMouseMove = (event) => {
-    event.stopPropagation();
-    console.log(`${event.target.tagName}`);
     const rect = this.ref.current.getBoundingClientRect();
     this.setState({
       x: event.clientX - rect.left - this.ref.current.clientLeft,
@@ -50,7 +47,7 @@ class MousePosition extends React.Component {
   render() {
     return (
       // <div className="ballContainer" >
-      <div className="ballContainer" ref={this.ref} onMouseMoveCapture={this.handleMouseMove}>
+      <div className="ballContainer" ref={this.ref} onMouseMove={this.handleMouseMove}>
         {this.props.render(this.state, this.ref)}
       </div>
     );
